@@ -2,3 +2,4 @@ venv/
 iot_monitor
 *.o
 *.log
+build/
