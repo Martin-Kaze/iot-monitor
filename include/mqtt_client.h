@@ -9,6 +9,4 @@ struct mosquitto *mqtt_start(const config_t *cfg);
 /* Disconnects and frees everything created by mqtt_start*/
 void mqtt_stop(struct mosquitto *mosq);
 
-
-
 #endif

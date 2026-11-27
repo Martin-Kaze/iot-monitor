@@ -6,6 +6,7 @@
 #define KEEPALIVE_SECONDS 60
 #define TELEMETRY_TOPIC "iot/devices/+/telemetry"
 
+/* Called by the network thread when the broker answers CONNECT */
 static void on_connect(struct mosquitto *mosq, void *userdata, int rc)
 {
 
@@ -26,6 +27,7 @@ static void on_connect(struct mosquitto *mosq, void *userdata, int rc)
     }
 }
 
+/* Called by the network thread for every received message.*/
 static void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *msg)
 {
     (void)mosq;
@@ -50,6 +52,7 @@ struct mosquitto *mqtt_start(const config_t *cfg)
         return NULL;
     }
 
+    /* Register callbacks before connecting */
     mosquitto_connect_callback_set(mosq, on_connect);
     mosquitto_message_callback_set(mosq, on_message);
 
@@ -63,7 +66,9 @@ struct mosquitto *mqtt_start(const config_t *cfg)
     }
     printf("Connected to %s:%d\n", cfg->host, cfg->port);
 
+    /* Network thread: reads incoming packets, sends pings, calls the callbacks */
     rc = mosquitto_loop_start(mosq);
+
     if (rc != MOSQ_ERR_SUCCESS)
     {
         fprintf(stderr, "Failed to start loop, error: %s \n", mosquitto_strerror(rc));
@@ -75,6 +80,7 @@ struct mosquitto *mqtt_start(const config_t *cfg)
 
     return mosq;
 }
+
 
 void mqtt_stop(struct mosquitto *mosq)
 {

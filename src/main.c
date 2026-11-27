@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    /* Wait while the network thread handles messages (Ctrl+C to quit for now) */
     while (1){
          sleep(1);
     }
