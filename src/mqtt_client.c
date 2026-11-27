@@ -20,9 +20,17 @@ static void on_connect(struct mosquitto *mosq, void *userdata, int rc)
     {
         fprintf(stderr, "Failed subscription : %s\n", mosquitto_strerror(sub_rc));
     }
-    else{
+    else
+    {
         printf("Subscribed to %s\n", TELEMETRY_TOPIC);
     }
+}
+
+static void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *msg)
+{
+    (void)mosq;
+    (void)userdata;
+    printf("%s: %.*s\n", msg->topic, msg->payloadlen, (char *)msg->payload);
 }
 
 struct mosquitto *mqtt_start(const config_t *cfg)
@@ -43,6 +51,7 @@ struct mosquitto *mqtt_start(const config_t *cfg)
     }
 
     mosquitto_connect_callback_set(mosq, on_connect);
+    mosquitto_message_callback_set(mosq, on_message);
 
     int rc = mosquitto_connect(mosq, cfg->host, cfg->port, KEEPALIVE_SECONDS);
     if (rc != MOSQ_ERR_SUCCESS)
@@ -54,7 +63,7 @@ struct mosquitto *mqtt_start(const config_t *cfg)
     }
     printf("Connected to %s:%d\n", cfg->host, cfg->port);
 
-    rc = mosquitto_loop_start(mosq); 
+    rc = mosquitto_loop_start(mosq);
     if (rc != MOSQ_ERR_SUCCESS)
     {
         fprintf(stderr, "Failed to start loop, error: %s \n", mosquitto_strerror(rc));
