@@ -6,6 +6,7 @@
 #include "config.h"
 #include <stdio.h>
 #include "mqtt_client.h"
+#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +24,11 @@ int main(int argc, char *argv[])
     if( mosq == NULL){
         return 1;
     }
+
+    while (1){
+         sleep(1);
+    }
+   
 
     mqtt_stop(mosq);
 
