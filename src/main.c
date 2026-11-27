@@ -10,6 +10,8 @@
 
 int main(int argc, char *argv[])
 {
+    /* Flush stdout at every newline, even when piped or run as a service */
+    setvbuf(stdout, NULL, _IOLBF, 0);
 
     config_t cfg;
 
