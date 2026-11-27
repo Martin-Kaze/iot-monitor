@@ -5,9 +5,13 @@
 
 #include "config.h"
 #include <stdio.h>
+#include "mqtt_client.h"
+#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
+    /* Flush stdout at every newline, even when piped or run as a service */
+    setvbuf(stdout, NULL, _IOLBF, 0);
 
     config_t cfg;
 
@@ -18,6 +22,17 @@ int main(int argc, char *argv[])
     if (result == CONFIG_ERROR)
         return 1;
 
-    const char *log_text = (cfg.log_path != NULL) ? cfg.log_path : "(none)";
-    printf("Host: %s, Port: %i, Log Path: %s \n", cfg.host, cfg.port, log_text);
+    struct mosquitto *mosq = mqtt_start(&cfg);
+    if( mosq == NULL){
+        return 1;
+    }
+
+    /* Wait while the network thread handles messages (Ctrl+C to quit for now) */
+    while (1){
+         sleep(1);
+    }
+   
+
+    mqtt_stop(mosq);
+
 }
