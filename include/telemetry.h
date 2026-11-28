@@ -24,4 +24,7 @@ typedef enum
 /* Parses and validates a JSON telemetry payload of len bytes */
 telemetry_result_t telemetry_parse(const char *payload, int len, telemetry_t *out);
 
+/* turns the enum into a string,*/
+const char *telemetry_strerror(telemetry_result_t rc);
+
 #endif

@@ -15,6 +15,24 @@
 #define TIMESTAMP_MIN 0.0
 #define TIMESTAMP_MAX 4102444800.0
 
+const char *telemetry_strerror(telemetry_result_t rc)
+{
+    switch (rc)
+    {
+    case TELEMETRY_OK:
+        return "ok";
+    case TELEMETRY_ERR_JSON:
+        return "invalid JSON";
+    case TELEMETRY_ERR_MISSING:
+        return "missing required field";
+    case TELEMETRY_ERR_TYPE:
+        return "field has wrong type";
+    case TELEMETRY_ERR_RANGE:
+        return "value out of range";
+    }
+    return "unknown error";
+}
+
 /* Finds a numeric field, returns MISSING or TYPE if absent or not a number. */
 static telemetry_result_t get_number(const cJSON *root, const char *name, double *value)
 {
@@ -141,11 +159,12 @@ telemetry_result_t telemetry_parse(const char *payload, int len, telemetry_t *ou
 
     telemetry_result_t rc = extract_fields(root, &tmp);
 
-    if( rc == TELEMETRY_OK){
+    if (rc == TELEMETRY_OK)
+    {
         *out = tmp;
     }
-    
-     cJSON_Delete(root);
 
-     return rc;
+    cJSON_Delete(root);
+
+    return rc;
 }
