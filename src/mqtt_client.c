@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <mosquitto.h>
 #include "mqtt_client.h"
+#include "telemetry.h"
 
 #define KEEPALIVE_SECONDS 60
 #define TELEMETRY_TOPIC "iot/devices/+/telemetry"
@@ -32,7 +33,21 @@ static void on_message(struct mosquitto *mosq, void *userdata, const struct mosq
 {
     (void)mosq;
     (void)userdata;
-    printf("%s: %.*s\n", msg->topic, msg->payloadlen, (char *)msg->payload);
+
+    telemetry_t t;
+    telemetry_result_t rc = telemetry_parse(msg->payload, msg->payloadlen, &t);
+    if (rc != TELEMETRY_OK)
+    {
+        fprintf(stderr, "Invalid telemetry on %s: %s\n", msg->topic, telemetry_strerror(rc));
+    }
+    else
+    {
+        printf("Device: %s\n"
+               "Temperature: %.1f C\n"
+               "Humidity: %.1f %%\n"
+               "Battery: %d %%\n",
+               t.device_id, t.temperature, t.humidity, t.battery);
+    }
 }
 
 struct mosquitto *mqtt_start(const config_t *cfg)
@@ -80,7 +95,6 @@ struct mosquitto *mqtt_start(const config_t *cfg)
 
     return mosq;
 }
-
 
 void mqtt_stop(struct mosquitto *mosq)
 {
